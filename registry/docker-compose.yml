@@ -1,0 +1,60 @@
+name: 'registry'
+
+services:
+
+  registry:
+    image: 'docker.io/registry:2.8.3'
+    environment:
+      REGISTRY_HTTP_ADDR: '0.0.0.0:5000' # seteamos interfaz y puerto en que escucha
+      REGISTRY_AUTH: 'htpasswd' # metodo de autenticacion
+      REGISTRY_AUTH_HTPASSWD_REALM: 'myrealm'
+      REGISTRY_AUTH_HTPASSWD_PATH: '/things/htpasswd'
+      REGISTRY_HTTP_TLS_CERTIFICATE: '/things/cert.pem'
+      REGISTRY_HTTP_TLS_KEY: '/things/key.pem'
+      REGISTRY_HTTP_SECRET: 'mysecret'
+      #si quisieran usarla como proxy-cache
+      #REGISTRY_PROXY_REMOTEURL: 'https://registry-1.docker.io'
+      #REGISTRY_PROXY_ttl: '168h'
+    network_mode: 'bridge' # evitamos la creacion de la red default del compose
+    restart: 'unless-stopped'
+    depends_on: # aca hacemos que la registry no arranque haste que los otros servicios terminen su ejecicion satisfactoria
+      password-generator:
+        condition: 'service_completed_successfully'
+      cert-generator:
+        condition: 'service_completed_successfully'
+    tmpfs:
+      - '/var/lib/registry' # uso tmpfs porque es una prueba, si quieren persistir los datos deben usar un volumen
+    volumes:
+      - 'things:/things/:ro'
+    ports:
+      - '5000:5000' # exponemos el puerto
+
+  # este componente genera el archivo htpasswd en base a las ENVs y deja el archivo en un volumen que es compartido con la registry
+  password-generator:
+    image: 'docker.io/httpd:2.4.63-alpine3.21'
+    entrypoint: '/bin/sh -c'
+    command: ["htpasswd -Bbn $$USERNAME $$PASSWORD > /things/htpasswd"]
+    environment:
+      USERNAME: 'augusto'
+      PASSWORD: 'augusto'
+    network_mode: 'none'
+    restart: 'no'
+    volumes:
+      - 'things:/things/:rw'
+
+  # este componente genera key y cert autofirmados para que la registry funcione con TLS, los deja en el volumen compartido
+  cert-generator:
+    image: 'docker.io/alpine/openssl:3.3.2'
+    command: 'req -x509 -newkey rsa:4096 -keyout /things/key.pem -out /things/cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"'
+    network_mode: 'none'
+    restart: 'no'
+    volumes:
+      - source: 'things'
+        target: '/things/'
+        read_only: false
+        type: 'volume'
+
+volumes:
+  things:
+    driver: 'local'
+    name: 'registry-stuff'
