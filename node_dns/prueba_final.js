@@ -14,14 +14,18 @@ podemos probarlo de 3 formas, usando el globalAgent espaciado mas de 5 segundos,
 o pasando false y que instancia un nuevo cliente cada vez
 */
 
+// hacemos 7 request y deberiamos ver 6 Lookups
+
 async function test(){
   const server = await createServer();
-  for(let i=0 ; i<16 ; i++){
-    //await request({lookup: intercepLookup, agent: false});
-    await request({lookup: intercepLookup});
-    //await request({agent, lookup: intercepLookup});
-    await new Promise(resolve => setTimeout(resolve, 6000))
-  }
+  await request({lookup: intercepLookup});
+  await request({lookup: intercepLookup});
+  await new Promise(resolve => setTimeout(resolve, 6000))
+  await request({lookup: intercepLookup});
+  await request({lookup: intercepLookup, agent});
+  await request({lookup: intercepLookup, agent});
+  await request({lookup: intercepLookup, agent: false});
+  await request({lookup: intercepLookup, agent: false});
   server.close();
 }
 
