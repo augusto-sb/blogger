@@ -1,0 +1,13 @@
+prueba.js
+[ '127.0.0.53' ]
+localhost: 961.426ms
+127.0.0.1: 874.537ms
+solucion.js
+[]
+127.0.0.1: 330.21ms
+[ 'lookup' ]
+127.0.0.1: 230.336ms
+[]
+localhost: 273.548ms
+[ 'lookup' ]
+localhost: 212.093ms
