@@ -1,0 +1,39 @@
+# NO necesitamos tocar /etc/hosts para este
+# sin auth
+# docker compose -f compose-3.yml up --detach
+# mongodb://localhost:27017,localhost:27018,localhost:27019/
+# rs.status()
+# docker compose -f compose-3.yml stop
+# no me gusta usar la red de host pero simplifica bastante la prueba
+
+name: 'mongodb'
+
+x-common: &common
+  entrypoint: 'mongod'
+  image: 'docker.io/library/mongo:7.0.20'
+  tmpfs:
+    - /data/configdb
+    - /data/db
+  environment: {}
+  restart: 'no'
+  logging:
+    driver: 'none'
+  network_mode: 'host'
+
+services:
+  mongodb-node1:
+    <<: *common
+    healthcheck:
+      test: mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'},{_id:1,host:'localhost:27018'},{_id:2,host:'localhost:27019',arbiterOnly:true}]})" --quiet
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+    command: ["--replSet", "rs0", "--bind_ip_all", "--noauth", "--port", "27017"]
+  mongodb-node2:
+    <<: *common
+    command: ["--replSet", "rs0", "--bind_ip_all", "--noauth", "--port", "27018"]
+  mongodb-arbiter:
+    <<: *common
+    command: ["--replSet", "rs0", "--bind_ip_all", "--noauth", "--port", "27019"]

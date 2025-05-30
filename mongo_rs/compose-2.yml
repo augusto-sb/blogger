@@ -1,0 +1,63 @@
+# NO necesitamos tocar /etc/hosts para este
+# sin auth
+# docker compose -f compose-2.yml up --detach
+# mongodb://localhost:27017,localhost:27018,localhost:27019/
+# rs.status()
+# docker compose -f compose-2.yml stop
+
+name: 'mongodb'
+
+x-common: &common
+  entrypoint: 'mongod'
+  command: ["--replSet", "rs0", "--bind_ip_all", "--noauth"]
+  image: 'docker.io/library/mongo:7.0.20'
+  tmpfs:
+    - /data/configdb
+    - /data/db
+  environment: {}
+  restart: 'no'
+  logging:
+    driver: 'none'
+
+services:
+  mongodb-node1:
+    <<: *common
+    ports:
+      - 27017:27017/tcp
+    #post_start:
+      #- command: mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb-node1:27017'},{_id:1,host:'mongodb-node2:27017'},{_id:2,host:'mongodb-arbiter:27017',arbiterOnly:true}]})" --quiet
+        #user: mongodb
+        #privileged: false
+    healthcheck:
+      #test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      test: mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'172.19.238.10:27017'},{_id:1,host:'172.19.238.11:27017'},{_id:2,host:'172.19.238.12:27017',arbiterOnly:true}]})" --quiet
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+    networks:
+      lan:
+        ipv4_address: 172.19.238.10
+  mongodb-node2:
+    <<: *common
+    ports:
+      - 27018:27017/tcp
+    networks:
+      lan:
+        ipv4_address: 172.19.238.11
+  mongodb-arbiter:
+    <<: *common
+    ports:
+      - 27019:27017/tcp
+    networks:
+      lan:
+        ipv4_address: 172.19.238.12
+
+networks:
+  lan:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/16

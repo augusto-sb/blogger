@@ -1,0 +1,63 @@
+name: 'mongodb-shard'
+
+# docker compose -f sharding.yml up --detach
+
+# docker compose -f sharding.yml exec config-1 mongosh --port 27019 --eval 'rs.initiate({"_id":"rsC","members":[{"_id":0,"host":"config-1:27019"},{"_id":1,"host":"config-2:27019"},{"_id":2,"host":"config-3:27019"}]});'
+
+# docker compose -f sharding.yml exec shard-1 mongosh --port 27018 --eval 'rs.initiate({"_id":"rsS","members":[{"_id":0,"host":"shard-1:27018"},{"_id":1,"host":"shard-2:27018"},{"_id":2,"host":"shard-3:27018"}]});'
+
+# docker compose -f sharding.yml exec router mongosh --eval 'sh.addShard("rsS/shard-1:27018,shard-2:27018,shard-3:27018");'
+
+# mongodb://localhost:27017
+
+# sh.status()
+
+x-common: &common
+  image: 'docker.io/mongo:7.0.20'
+  tmpfs:
+    - /data/configdb
+    - /data/db
+  restart: 'no'
+  environment: {}
+  networks:
+    lan: {}
+  logging:
+    driver: 'none'
+
+services:
+  router:
+    <<: *common
+    entrypoint: mongos
+    command: ["--bind_ip_all", "--noauth", "--configdb", "rsC/config-1:27019,config-2:27019,config-3:27019"]
+    ports:
+      - 27017:27017/tcp
+  shard-1:
+    <<: *common
+    entrypoint: mongod
+    command: ["--replSet", "rsS", "--bind_ip_all", "--noauth", "--shardsvr"]
+  shard-2:
+    <<: *common
+    entrypoint: mongod
+    command: ["--replSet", "rsS", "--bind_ip_all", "--noauth", "--shardsvr"]
+  shard-3:
+    <<: *common
+    entrypoint: mongod
+    command: ["--replSet", "rsS", "--bind_ip_all", "--noauth", "--shardsvr"]
+  config-1:
+    <<: *common
+    entrypoint: mongod
+    command: ["--replSet", "rsC", "--bind_ip_all", "--noauth", "--configsvr"]
+  config-2:
+    <<: *common
+    entrypoint: mongod
+    command: ["--replSet", "rsC", "--bind_ip_all", "--noauth", "--configsvr"]
+  config-3:
+    <<: *common
+    entrypoint: mongod
+    command: ["--replSet", "rsC", "--bind_ip_all", "--noauth", "--configsvr"]
+
+
+
+networks:
+  lan:
+    driver: bridge

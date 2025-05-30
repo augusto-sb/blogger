@@ -1,0 +1,65 @@
+# NO necesitamos tocar /etc/hosts para este
+# CON auth
+# docker compose -f compose-4.yml up --detach
+# mongodb://localhost:27017,localhost:27018,localhost:27019/
+# rs.status()
+# docker compose -f compose-4.yml stop
+# no me gusta usar la red de host pero simplifica bastante la prueba
+
+name: 'mongodb'
+
+x-common: &common
+  image: 'docker.io/library/mongo:7.0.20'
+  tmpfs:
+    - /data/configdb
+    - /data/db
+  environment:
+    MONGO_INITDB_ROOT_PASSWORD: mongodbadminpass
+    MONGO_INITDB_ROOT_USERNAME: mongodbadminuser
+  restart: 'no'
+  logging:
+    driver: 'none'
+  network_mode: 'host'
+  volumes:
+    - shared:/opt/shared:ro
+  depends_on:
+    init:
+      condition: service_completed_successfully
+  entrypoint: mongod
+  #entrypoint: dejamos el default que crea user con MONGO_INITDB_ROOT_PASSWORD y MONGO_INITDB_ROOT_USERNAME
+
+services:
+  init:
+    entrypoint: >
+      /bin/bash -c '
+      openssl rand -base64 756 > /opt/shared/keyfile.key &&
+      chmod 400 /opt/shared/keyfile.key &&
+      chown mongodb:mongodb /opt/shared/keyfile.key'
+    volumes:
+      - shared:/opt/shared
+    image: 'docker.io/library/mongo:7.0.20'
+    network_mode: 'none'
+    tmpfs:
+      - /data/configdb
+      - /data/db
+    restart: 'no'
+  node1:
+    <<: *common
+    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/opt/shared/keyfile.key", "--port", "27017"]
+    healthcheck:
+      test: mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'},{_id:1,host:'localhost:27018'},{_id:2,host:'localhost:27019',arbiterOnly:true}]})" --quiet
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+  node2:
+    <<: *common
+    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/opt/shared/keyfile.key", "--port", "27018"]
+  arbiter:
+    <<: *common
+    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/opt/shared/keyfile.key", "--port", "27019"]
+
+volumes:
+  shared:
+    driver: local
