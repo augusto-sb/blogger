@@ -1,0 +1,1 @@
+IP=$(minikube ip) go run test.go
