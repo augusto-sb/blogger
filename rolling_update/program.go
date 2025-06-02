@@ -10,11 +10,17 @@ import (
 	"time"
 )
 
+var message []byte = []byte("ok")
+
 func handler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("handler: pre")
 	time.Sleep(5000 * time.Millisecond) // simulate slow
 	fmt.Println("handler: post")
-	w.Write([]byte("ok"))
+	w.Write(message)
+}
+
+func init() {
+	message = []byte(os.Getenv("MESSAGE"));
 }
 
 func main() {
