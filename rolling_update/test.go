@@ -26,14 +26,14 @@ func makeReq() {
 	fmt.Println(client, "request result: ", res.StatusCode, string(body))
 }
 
-func init(){
-	endpoint = "http://"+os.Getenv("IP")+":30000"
+func init() {
+	endpoint = "http://" + os.Getenv("IP") + ":30000"
 	client = os.Getenv("CLIENT")
 }
 
-func main(){
+func main() {
 	for {
-		makeReq();
+		makeReq()
 		time.Sleep(10 * time.Millisecond)
 	}
 }

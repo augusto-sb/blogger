@@ -20,7 +20,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 }
 
 func init() {
-	message = []byte(os.Getenv("MESSAGE"));
+	message = []byte(os.Getenv("MESSAGE"))
 }
 
 func main() {
