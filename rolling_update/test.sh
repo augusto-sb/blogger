@@ -1,1 +1,1 @@
-IP=$(minikube ip) go run test.go
+CLIENT=$1 IP=$(minikube ip) go run test.go
