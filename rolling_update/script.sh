@@ -1,4 +1,8 @@
-minikube start --driver docker --kubernetes-version 1.29.14
+minikube start --driver docker --kubernetes-version 1.29.15
+
+# wget https://dl.k8s.io/v1.29.15/bin/linux/amd64/kubectl -O kubectl-v1.29.15
+
+sleep 60;
 
 #docker build . -t rolling:1 -t rolling:2
 docker build . -t rolling:1 --build-arg MESSAGEARG=ok_old
@@ -33,6 +37,11 @@ sleep 60;
 # update deployment
 echo 'updating'
 kubectl set image deployment/rolling-deployment rolling=rolling:2
+
+sleep 1;
+kubectl rollout status deployments.apps/rolling-deployment;
+sleep 1;
+kubectl rollout status deployments.apps/rolling-deployment;
 
 sleep 60;
 

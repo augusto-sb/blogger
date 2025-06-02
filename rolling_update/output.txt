@@ -1,0 +1,90 @@
+😄  minikube v1.36.0 en Linuxmint 22
+🆕  Kubernetes 1.33.1 is now available. If you would like to upgrade, specify: --kubernetes-version=v1.33.1
+✨  Using the docker driver based on existing profile
+👍  Starting "minikube" primary control-plane node in "minikube" cluster
+🚜  Pulling base image v0.0.47 ...
+💾  Descargando Kubernetes v1.29.15 ...
+🏃  Updating the running docker "minikube" container ...
+🐳  Preparando Kubernetes v1.29.15 en Docker 28.1.1...
+🔗  Configurando CNI bridge CNI ...
+🔎  Verifying Kubernetes components...
+    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
+🌟  Complementos habilitados: storage-provisioner, default-storageclass
+
+    ▪ Want kubectl v1.29.15? Try 'minikube kubectl -- get pods -A'
+🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+NAME       STATUS   ROLES           AGE     VERSION
+minikube   Ready    control-plane   2d18h   v1.29.15
+deployment.apps/rolling-deployment unchanged
+service/rolling-service unchanged
+343087
+376266
+376267
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+updating
+deployment.apps/rolling-deployment image updated
+2 request result:  200 ok_old
+1 request result:  200 ok_old
+Waiting for deployment "rolling-deployment" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "rolling-deployment" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "rolling-deployment" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "rolling-deployment" rollout to finish: 2 out of 3 new replicas have been updated...
+1 request result:  200 ok_old
+Waiting for deployment "rolling-deployment" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "rolling-deployment" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "rolling-deployment" rollout to finish: 1 old replicas are pending termination...
+2 request result:  200 ok_old
+1 request result:  200 ok_new
+Waiting for deployment "rolling-deployment" rollout to finish: 1 old replicas are pending termination...
+deployment "rolling-deployment" successfully rolled out
+deployment "rolling-deployment" successfully rolled out
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+1 request result:  200 ok_new
+2 request result:  200 ok_new
+service "rolling-service" deleted
+deployment.apps "rolling-deployment" deleted
+✋  Stopping node "minikube"  ...
+🛑  Apagando "minikube" mediante SSH...
+🛑  1 node stopped.
