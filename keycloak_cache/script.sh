@@ -31,14 +31,9 @@ docker container exec kc-1 /opt/keycloak/bin/kcadm.sh config credentials --serve
 clientId=$(docker container exec kc-1 /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s 'directAccessGrantsEnabled=true' -s 'publicClient=true' -i);
 #set direct access grants for client account in master realm
 
-sleep 8;
-
 # crea una session
 TOKEN=$(curl --no-progress-meter -d "client_id=test" -d "username=admin" -d "password=admin" -d "grant_type=password" "http://localhost:8080/realms/master/protocol/openid-connect/token" -H 'Host: localhost:8080' 2>/dev/null | cut -d '"' -f4);
-
-#curl -H 'Host: localhost:8080' http://localhost:8080/realms/master/protocol/openid-connect/userinfo -H "Authorization: Bearer ${TOKEN}"
-
-#curl -d "client_id=account" -d "username=admin" -d "password=admin" -d "grant_type=password" "http://localhost:8080/realms/master/protocol/openid-connect/token"
+# el header Host conviene setearlo si hacemos requests a los keycloaks a distinto host para no tener error por el issuer
 
 docker container start kc-2;
 
