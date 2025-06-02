@@ -12,7 +12,7 @@ docker container run --detach --network keycloak --name kc-database --volume key
 sleep 16;
 
 # uses port 7800
-# or -Djgroups.dns.query=keycloak
+# or -Djgroups.dns.query=kchost, dns will return ip of both keycloaks
 
 docker container run --detach --network keycloak --name kc-1 -p 8080:8080 -e KC_HTTP_ENABLED=true -e KC_DB=postgres \
   -e KC_DB_PASSWORD=dbpass -e KC_DB_USERNAME=dbuser -e KC_DB_URL=jdbc:postgresql://kc-database:5432/kcdb --hostname kchost \
@@ -29,7 +29,7 @@ sleep 32;
 
 docker container exec kc-1 /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin;
 clientId=$(docker container exec kc-1 /opt/keycloak/bin/kcadm.sh create clients -r master -s clientId=test -s 'directAccessGrantsEnabled=true' -s 'publicClient=true' -i);
-#set direct access grants for client account in master realm
+#set direct access grants for client account in master realm or create client
 
 # crea una session
 TOKEN=$(curl --no-progress-meter -d "client_id=test" -d "username=admin" -d "password=admin" -d "grant_type=password" "http://localhost:8080/realms/master/protocol/openid-connect/token" -H 'Host: localhost:8080' 2>/dev/null | cut -d '"' -f4);
