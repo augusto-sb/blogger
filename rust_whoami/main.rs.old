@@ -1,0 +1,61 @@
+use std::env;
+use std::{
+    io::{BufReader, prelude::*},
+    net::{TcpListener, TcpStream},
+};
+use std::process::exit;
+
+//static name_line: &str = "";
+
+fn main() {
+    //let portNumberKey = "WHOAMI_PORT_NUMBER";
+    let port_number_key = "WHOAMI_PORT_NUMBER";
+    //const nameKey: &str  = "WHOAMI_NAME";
+    const NAME_KEY: &str  = "WHOAMI_NAME";
+
+    match env::var(port_number_key) {
+        Ok(val) => println!("{}: {:?}", port_number_key, val),
+        Err(e) => println!("Error env {}: {}", port_number_key, e),
+    }
+    match env::var(NAME_KEY) {
+        //Ok(val) => println!("{}: {:?}", NAME_KEY, val),
+        Ok(val) => name_line = &("Name: ".to_owned()+&val),
+        Err(e) => println!("Error env {}: {}", NAME_KEY, e),
+    }
+
+    //let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let listener_res = TcpListener::bind("127.0.0.1:8080");
+    let listener: TcpListener;
+    match listener_res {
+        Ok(val) => {
+        	//println!("tcp listener listening in {}.", val.local_addr().unwrap());
+        	listener = val;
+        },
+        Err(e) => {
+        	println!("Error listener {}.", e);
+        	exit(1);
+        },
+    }
+
+    for stream in listener.incoming() {
+        //let stream = stream.unwrap();
+        //handle_connection(stream);
+        match stream {
+            Ok(stream) => {
+                handle_connection(stream);
+            }
+            Err(e) => { println!("Error stream: {}", e) }
+        }
+    }
+}
+
+fn handle_connection(/*mut */stream: TcpStream) {
+    let buf_reader = BufReader::new(&stream);
+    let http_request: Vec<_> = buf_reader
+        .lines()
+        .map(|result| result.unwrap())
+        .take_while(|line| !line.is_empty())
+        .collect();
+
+    println!("Request: {http_request:#?}");
+}
