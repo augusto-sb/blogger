@@ -1,0 +1,20 @@
+services:
+  rmq:
+    image: 'docker.io/library/rabbitmq:4.1.1-alpine'
+    tmpfs:
+      - /var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+  perf:
+    image: 'docker.io/library/sapmachine:17.0.15-jre-alpine'
+    volumes:
+      - .//perf-test-2.23.0.jar:/perf-test-2.23.0.jar:ro
+    entrypoint: java
+    command: ["-jar", "/perf-test-2.23.0.jar", "--time", "16", "--uri", "amqp://guest:guest@rmq:5672"]
+    depends_on:
+      rmq:
+        condition: service_healthy

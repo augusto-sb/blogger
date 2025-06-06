@@ -11,3 +11,10 @@ perf-1  | id: test-193019-028, receiving rate avg: 170778 msg/s
 perf-1  | id: test-193019-028, consumer latency min/median/75th/95th/99th 110/37293/45684/53755/63142 µs
 
 no mejora mucho
+
+
+
+https://stackoverflow.com/questions/40907954/terminate-docker-compose-when-test-container-finishes
+https://stackoverflow.com/questions/69893966/how-to-check-rabbitmq-connectionhealth-check-up-or-not
+
+bash script.sh
