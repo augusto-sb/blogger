@@ -1,0 +1,55 @@
+# mongo-express para no tocar na
+# sin auth
+# docker compose -f compose-5.yml up
+# http://localhost:8081/
+# rs.status()
+# docker compose -f compose-5.yml rm
+
+name: 'mongodb'
+
+x-common: &common
+  entrypoint: 'mongod'
+  command: ["--replSet", "rs0", "--bind_ip_all", "--noauth"]
+  image: 'docker.io/library/mongo:7.0.21'
+  networks:
+    lan: {}
+  tmpfs:
+    - /data/configdb
+    - /data/db
+  environment: {}
+  restart: 'no'
+  logging:
+    driver: 'none'
+
+services:
+  mongodb-node1:
+    <<: *common
+    healthcheck:
+      test: mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb-node1:27017'},{_id:1,host:'mongodb-node2:27017'},{_id:2,host:'mongodb-arbiter:27017',arbiterOnly:true}]})" --quiet
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+  mongodb-node2:
+    <<: *common
+  mongodb-arbiter:
+    <<: *common
+  ui:
+    image: docker.io/library/mongo-express:1.0.2-20-alpine3.19
+    environment:
+      # ME_CONFIG_MONGODB_SERVER: 'mongodb-node1,mongodb-node2,mongodb-arbiter' # ?replSet=rs0 ?replicaSet=rs0
+      ME_CONFIG_MONGODB_URL: 'mongodb://mongodb-node1:27017,mongodb-node2:27017,mongodb-arbiter:27017/?replicaSet=rs0'
+      ME_CONFIG_BASICAUTH_USERNAME: 'admin'
+      ME_CONFIG_BASICAUTH_PASSWORD: 'admin'
+    ports:
+      - 8081:8081/tcp
+    networks:
+      lan: {}
+    depends_on:
+      mongodb-node1:
+        condition: service_healthy
+
+networks:
+  lan:
+    driver: bridge
