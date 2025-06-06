@@ -1,0 +1,13 @@
+usar canales en go y go routines, en la version de node son 2 threads y en estye 1?
+
+probar con dockwer distintas ver
+
+hacer solo servers y probar con curl respuestas iguales!: go no me esta mandando headers (Connection: keep-alive y Keep-Alive: timeout=5)
+
+keepalives?
+
+meter server y tester en go routines y usar waitgroups o channels para sincro
+
+habia que consumir la request?
+
+https://paween-p.medium.com/how-to-enable-http-keep-alive-in-go-581868392bad
