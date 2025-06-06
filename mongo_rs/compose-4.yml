@@ -9,7 +9,7 @@
 name: 'mongodb'
 
 x-common: &common
-  image: 'docker.io/library/mongo:7.0.20'
+  image: 'docker.io/library/mongo:7.0.21'
   tmpfs:
     - /data/configdb
     - /data/db
@@ -37,7 +37,7 @@ services:
       chown mongodb:mongodb /opt/shared/keyfile.key'
     volumes:
       - shared:/opt/shared
-    image: 'docker.io/library/mongo:7.0.20'
+    image: 'docker.io/library/mongo:7.0.21'
     network_mode: 'none'
     tmpfs:
       - /data/configdb
