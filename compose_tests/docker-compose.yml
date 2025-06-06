@@ -2,6 +2,7 @@ services:
   test:
     image: docker.io/library/alpine:3.21.3
     entrypoint: printenv
+    network_mode: none
     environment:
       VAR1: '${REGISTRY}/${NAMESPACE}/comp1:${VERSION}'
       VAR2: '${REGISTRY}/${NAMESPACE}/comp2:${VERSION}'
