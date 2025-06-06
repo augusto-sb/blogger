@@ -1,0 +1,8 @@
+services:
+  test:
+    image: docker.io/library/alpine:3.21.3
+    entrypoint: printenv
+    environment:
+      VAR1: '${REGISTRY}/${NAMESPACE}/comp1:${VERSION}'
+      VAR2: '${REGISTRY}/${NAMESPACE}/comp2:${VERSION}'
+      VAR3: '${REGISTRY}/${NAMESPACE}/comp3:${VERSION}'
