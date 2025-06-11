@@ -15,7 +15,7 @@ RUN sha256sum -c haproxy-${VERSION}.tar.gz.sha256
 RUN md5sum -c haproxy-${VERSION}.tar.gz.md5
 RUN tar -xf haproxy-${VERSION}.tar.gz
 WORKDIR /lala/haproxy-${VERSION}/
-RUN make -j 1 TARGET=generic CPU=native LDFLAGS="-static -static-libgcc"
+RUN make -j 1 TARGET=generic LDFLAGS="-static"
 
 
 
