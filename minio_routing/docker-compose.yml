@@ -1,0 +1,17 @@
+services:
+  nginx:
+    image: "docker.io/nginxinc/nginx-unprivileged:1.28.0-alpine-slim"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+  minio:
+    image: "quay.io/minio/minio:RELEASE.2025-05-24T17-08-30Z"
+    environment:
+      MINIO_CONSOLE_ADDRESS: ":9001"
+      MINIO_BROWSER_REDIRECT_URL: "http://localhost:8080/minio/"
+      MINIO_ROOT_USER: 'adminadmin'
+      MINIO_ROOT_PASSWORD: 'adminadmin'
+    tmpfs:
+      - /data
+    command: 'minio server /data'
