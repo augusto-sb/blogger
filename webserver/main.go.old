@@ -1,0 +1,67 @@
+package main
+
+import (
+	"fmt"
+	"io/fs"
+	"os"
+	"net/http"
+	//"io/ioutil"
+)
+
+type Files map[string]([]byte)
+
+var files Files = Files{}
+
+func handleError(err error){
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+func walkDirFunc(path string, d fs.DirEntry, err1 error) error {
+	if(!d.IsDir()){
+		fileInfo, err2 := d.Info()
+		if(err2 == nil){
+			if(fileInfo.Mode().IsRegular()){
+				//no es ni directorio ni link ni etc
+				//fmt.Println("/"+path)
+				fileByteArr, err3 := os.ReadFile("/home/augusto/Escritorio/github/blogger/webserver/folder/html/"+path)//ioutil.ReadFile(path) // os.ReadFile("./"+path)
+				if(err3!= nil){
+					return err3
+				}
+				files["/"+path] = fileByteArr
+			}
+		}else{
+			return err2;
+		}
+	}
+	return err1
+}
+
+func handleReq(w http.ResponseWriter, r *http.Request) {
+	//fmt.Println(r.URL.Path)
+	value, exists := files[r.URL.Path];
+	if(exists){
+		w.Write(value);
+	}else{
+		w.Write(files["/index.html"]);
+	}
+}
+
+func main(){
+	var err error
+	// ver cwd
+	cwd, err := os.Getwd();
+	if(err == nil){
+		fmt.Println(cwd)
+	}
+	//load map
+	root := "/home/augusto/Escritorio/github/blogger/webserver/folder/html"
+	fileSystem := os.DirFS(root)
+	err = fs.WalkDir(fileSystem, ".", walkDirFunc)
+	handleError(err)
+	//start server
+	http.HandleFunc("/", handleReq)
+	err = http.ListenAndServe(":8080", nil)
+	handleError(err)
+}

@@ -1,0 +1,52 @@
+package main
+
+import (
+	"fmt"
+	"io/fs"
+	"os"
+	"net/http"
+)
+
+type Node struct {
+    Value    []byte
+    Name     string
+    Children []*Node
+}
+
+func handleError(err error){
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+func walkDirFunc(path string, d fs.DirEntry, err error) error {
+	handleError(err)
+	fmt.Println(path)
+	return nil
+}
+
+var index []byte;
+
+func handleReq(w http.ResponseWriter, r *http.Request) {
+	w.Write(index)
+}
+
+func main(){
+	var err error
+	index, err = os.ReadFile("/home/augusto/Escritorio/github/blogger/webserver/folder/html/index.html")
+	handleError(err)
+	//load tree
+	/*var FS *Node = &Node{
+		Name     : "/",
+		Value    : []byte{},
+		Children : []*Node{},
+	}
+	root := "/home/augusto/Escritorio/github/blogger/webserver/folder/html/"
+	fileSystem := os.DirFS(root)
+	err = fs.WalkDir(fileSystem, ".", walkDirFunc)
+	handleError(err)*/
+	//fmt.Println(FS)
+	//start server
+	http.HandleFunc("/", handleReq)
+	http.ListenAndServe(":8080", nil)
+}
