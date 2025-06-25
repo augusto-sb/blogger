@@ -22,7 +22,7 @@ const server = http.createServer({ keepAliveTimeout: 60000 }, (req, res) => {
 });
 server.listen(8000, ()=>{
 	let counterhttp = 0;
-	const numberOfReq = 512;
+	const numberOfReq = 512*8;
 	for(let i=0 ; i<numberOfReq ; i++){
 		http.get('http://localhost:8000',()=>{
 			counterhttp++;
