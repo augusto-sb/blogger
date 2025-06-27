@@ -11,6 +11,7 @@ import (
 type File struct {
 	content     []byte
 	contentType string
+	length string
 }
 
 type Files map[string]File
@@ -41,7 +42,7 @@ func walkDirFunc(path string, d fs.DirEntry, err1 error) error {
 			if(replaceEnvs){
 				fileByteArr = []byte(strings.ReplaceAll(string(fileByteArr), "/context/path", os.Getenv("CONTEXT_PATH")))
 			}
-			files["/"+path] = File{content: fileByteArr, contentType: http.DetectContentType(fileByteArr)}
+			files["/"+path] = File{content: fileByteArr, contentType: http.DetectContentType(fileByteArr), length: strconv.Itoa(len(fileByteArr))}
 		}
 	}
 	return err1
@@ -58,7 +59,7 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", value.contentType)
-	w.Header().Set("Content-Length", strconv.Itoa(len(value.content)))
+	w.Header().Set("Content-Length", value.length)
 	w.Write(value.content)
 }
 
