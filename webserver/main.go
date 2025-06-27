@@ -11,16 +11,16 @@ import (
 type File struct {
 	content     []byte
 	contentType string
-	length string
+	length      string
 }
 
 type Files map[string]File
 
 var files Files = Files{}
-var replaceEnvs bool = false;
+var replaceEnvs bool = false
 var mimeMap map[string]string = map[string]string{
 	".css": "text/css",
-};
+}
 
 func handleError(err error) {
 	if err != nil {
@@ -39,7 +39,7 @@ func walkDirFunc(path string, d fs.DirEntry, err1 error) error {
 			if err3 != nil {
 				return err3
 			}
-			if(replaceEnvs){
+			if replaceEnvs {
 				fileByteArr = []byte(strings.ReplaceAll(string(fileByteArr), "/context/path", os.Getenv("CONTEXT_PATH")))
 			}
 			files["/"+path] = File{content: fileByteArr, contentType: http.DetectContentType(fileByteArr), length: strconv.Itoa(len(fileByteArr))}
@@ -66,8 +66,8 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 func main() {
 	var err error
 	//load map
-	if(os.Getenv("REPLACE_ENVS")=="true"){
-		replaceEnvs = true;
+	if os.Getenv("REPLACE_ENVS") == "true" {
+		replaceEnvs = true
 	}
 	fileSystem := os.DirFS("/html/")
 	err = fs.WalkDir(fileSystem, ".", walkDirFunc)
