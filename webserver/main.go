@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -15,6 +16,10 @@ type File struct {
 type Files map[string]File
 
 var files Files = Files{}
+var replaceEnvs bool = false;
+var mimeMap map[string]string = map[string]string{
+	".css": "text/css",
+};
 
 func handleError(err error) {
 	if err != nil {
@@ -33,34 +38,36 @@ func walkDirFunc(path string, d fs.DirEntry, err1 error) error {
 			if err3 != nil {
 				return err3
 			}
-			//contentType := http.DetectContentType(fileByteArr)
-			//files["/"+path] = File{content: fileByteArr, contentType: contentType}
-			files["/"+path] = File{content: fileByteArr, contentType: "text/html"}
-			if strings.HasSuffix(path, ".css") {
-				files["/"+path] = File{content: fileByteArr, contentType: "text/css"}
+			if(replaceEnvs){
+				fileByteArr = []byte(strings.ReplaceAll(string(fileByteArr), "/context/path", os.Getenv("CONTEXT_PATH")))
 			}
-			if strings.HasSuffix(path, ".js") {
-				files["/"+path] = File{content: fileByteArr, contentType: "text/javascript"}
-			}
+			files["/"+path] = File{content: fileByteArr, contentType: http.DetectContentType(fileByteArr)}
 		}
 	}
 	return err1
 }
 
 func handleReq(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "max-age=86400")
 	value, exists := files[r.URL.Path]
-	if exists {
-		w.Header().Set("Content-Type", value.contentType)
-		w.Write(value.content)
-	} else {
-		w.Header().Set("Content-Type", files["/index.html"].contentType)
-		w.Write(files["/index.html"].content)
+	if !exists {
+		value, exists = files["/index.html"]
 	}
+	if !exists {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", value.contentType)
+	w.Header().Set("Content-Length", strconv.Itoa(len(value.content)))
+	w.Write(value.content)
 }
 
 func main() {
 	var err error
 	//load map
+	if(os.Getenv("REPLACE_ENVS")=="true"){
+		replaceEnvs = true;
+	}
 	fileSystem := os.DirFS("/html/")
 	err = fs.WalkDir(fileSystem, ".", walkDirFunc)
 	handleError(err)
