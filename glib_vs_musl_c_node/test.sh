@@ -10,3 +10,6 @@ docker container run --rm --read-only --user 1234:4212 -v ./test.js:/test.js:ro 
 trivy image chustos.io/static/node:20.19.3
 trivy image node:20.19.3-slim
 trivy image node:20.19.3-alpine
+
+#wget https://github.com/aquasecurity/trivy/releases/download/v0.63.0/trivy_0.63.0_Linux-64bit.tar.gz
+# tar -xf trivy_0.63.0_Linux-64bit.tar.gz
