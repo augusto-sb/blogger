@@ -1,0 +1,30 @@
+FROM quay.io/keycloak/keycloak:26.2.5-0 AS base
+#realizamos build
+RUN /opt/keycloak/bin/kc.sh build --db=postgres --health-enabled=true --http-relative-path=/auth/
+#RUN java -Dkc.home.dir=/opt/keycloak -jar /opt/keycloak/lib/quarkus-run.jar build --db=postgres --health-enabled=true --http-relative-path=/auth/
+#quitamos files innecesarios
+RUN rm /opt/keycloak/themes/README.md \
+/opt/keycloak/README.md \
+/opt/keycloak/providers/README.md \
+/opt/keycloak/conf/README.md \
+/opt/keycloak/version.txt \
+/opt/keycloak/LICENSE.txt \
+/opt/keycloak/bin/*.sh \
+/opt/keycloak/bin/*.bat
+
+FROM gcr.io/distroless/java21:nonroot AS final
+COPY --from=base /opt/keycloak/ /keycloak/
+ENV KC_DB_URL=jdbc:postgresql://localhost:5432/keycloakdb
+#ENV KC_DB_USERNAME
+#ENV KC_DB_PASSWORD
+#--hostname-strict=false
+ENV KC_HOSTNAME_STRICT=false
+#--http-enabled=true
+ENV KC_HTTP_ENABLED=true
+#--proxy-headers=xforwarded
+ENV KC_PROXY_HEADERS=xforwarded
+#--log=console
+ENV KC_LOG=console
+ENTRYPOINT ["java", "-XX:+ExitOnOutOfMemoryError", "-Dkc.home.dir=/keycloak", "-jar", "/keycloak/lib/quarkus-run.jar"]
+CMD ["start", "--optimized"]
+EXPOSE 8080/tcp
