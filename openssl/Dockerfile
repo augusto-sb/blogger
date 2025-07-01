@@ -19,6 +19,8 @@ RUN make test
 
 FROM scratch
 COPY --from=build /openssl/apps/openssl /openssl
+ENV OPENSSL_CONF=/openssl.cnf
+COPY --from=build /openssl/apps/openssl.cnf /openssl.cnf
 USER 1324:1324
 ENTRYPOINT ["/openssl"]
 CMD ["version"]
