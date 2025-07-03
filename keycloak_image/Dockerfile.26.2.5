@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:26.3.0-0 AS base
+FROM quay.io/keycloak/keycloak:26.2.5-0 AS base
 #realizamos build
 RUN /opt/keycloak/bin/kc.sh build --db=postgres --health-enabled=true --http-relative-path=/auth/
 #RUN java -Dkc.home.dir=/opt/keycloak -jar /opt/keycloak/lib/quarkus-run.jar build --db=postgres --health-enabled=true --http-relative-path=/auth/

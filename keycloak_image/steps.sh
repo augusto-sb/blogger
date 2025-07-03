@@ -1,4 +1,5 @@
-docker image build . -t chustos.io/keycloak/stripped:26.2.5 -f Dockerfile;
+docker image build . -t chustos.io/keycloak/stripped:26.3.0 -f Dockerfile;
+docker image build . -t chustos.io/keycloak/stripped:26.2.5 -f Dockerfile.26.2.5;
 docker container run --rm chustos.io/keycloak/stripped:26.2.5;
 
 #docker image build . -t chustos.io/keycloak/stripped2:26.2.5 -f Dockerfile.scratch;
