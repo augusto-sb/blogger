@@ -1,0 +1,27 @@
+FROM docker.io/library/debian:12.11 AS everything
+RUN apt update
+RUN apt upgrade -y
+RUN apt install wget gnupg2 xz-utils -y
+RUN gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org
+WORKDIR /mykernel/
+ARG VERSION=6.12.36
+RUN wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${VERSION}.tar.xz
+RUN wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${VERSION}.tar.sign
+RUN unxz linux-${VERSION}.tar.xz
+RUN gpg2 --verify linux-${VERSION}.tar.sign
+RUN tar -xf linux-${VERSION}.tar
+WORKDIR /mykernel/linux-${VERSION}/
+RUN apt install make gcc -y
+RUN apt install flex bison kmod dpkg-dev debhelper bc cpio libelf-dev:native libssl-dev:native libssl-dev rsync -y
+#RUN make --jobs=4 bindeb-pkg LOCALVERSION=augusto ARCH=x86_64
+#(make defconfig) or generate a configuration based on the running kernel and the currently loaded modules (make localmodconfig).
+#RUN make localmodconfig
+RUN make defconfig
+RUN bash scripts/config --disable DEBUG_INFO
+RUN make clean
+#RUN make deb-pkg
+#RUN make ARCH=i386 defconfig
+#RUN bash scripts/config --disable CONFIG_COMPILE_TEST
+#RUN bash scripts/config --disable WERROR
+#RUN bash scripts/config --set-val LOCALVERSION augusto
+RUN make --jobs=4 bindeb-pkg ARCH=x86_64

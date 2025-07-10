@@ -1,0 +1,5 @@
+docker image build . --tag chustos.io/linux/linux:6.12.36 --file Dockerfile;
+
+# https://discourse.ubuntu.com/t/kernel-configuration-in-ubuntu/35857
+# https://www.debian.org/doc/manuals/debian-kernel-handbook/ch-common-tasks.html
+# https://wiki.debian.org/BuildADebianKernelPackage
