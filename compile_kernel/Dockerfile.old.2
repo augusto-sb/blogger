@@ -1,0 +1,43 @@
+FROM docker.io/library/debian:12.11 AS everything
+RUN apt update
+RUN apt upgrade -y
+RUN apt install wget gnupg2 xz-utils make gcc flex bison kmod dpkg-dev debhelper bc cpio libelf-dev:native libssl-dev:native libssl-dev rsync -y
+RUN gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org
+WORKDIR /mykernel/
+ARG VERSION=6.12.37
+RUN wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${VERSION}.tar.xz
+RUN wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${VERSION}.tar.sign
+RUN unxz linux-${VERSION}.tar.xz
+RUN gpg2 --verify linux-${VERSION}.tar.sign
+RUN tar -xf linux-${VERSION}.tar
+WORKDIR /mykernel/linux-${VERSION}/
+RUN make help
+#RUN make defconfig
+#RUN make localmodconfig
+COPY config-6.8.0-63-generic .config
+RUN make olddefconfig
+RUN bash scripts/config --disable DEBUG_INFO
+RUN bash scripts/config --disable CPU_SUP_HYGON
+RUN bash scripts/config --disable CPU_SUP_CENTAUR
+RUN bash scripts/config --disable CPU_SUP_ZHAOXIN
+RUN make clean
+#https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/noble/tree/debian.master/config/annotations
+#apt install procps
+#sysctl -a
+# make tinyconfig
+# make oldconfig
+#RUN make --jobs=4 bindeb-pkg LOCALVERSION=augusto ARCH=x86_64
+#(make defconfig) or generate a configuration based on the running kernel and the currently loaded modules (make localmodconfig).
+#RUN make defconfig
+#RUN make deb-pkg
+#RUN make ARCH=i386 defconfig
+#RUN bash scripts/config --disable CONFIG_COMPILE_TEST
+#RUN bash scripts/config --disable WERROR
+#RUN bash scripts/config --set-val LOCALVERSION augusto
+#CONFIG_CPU_SUP_INTEL=y
+#CONFIG_CPU_SUP_AMD=y
+#CONFIG_CPU_SUP_HYGON=y
+#CONFIG_CPU_SUP_CENTAUR=y
+#CONFIG_CPU_SUP_ZHAOXIN=y
+RUN apt install build-essential dkms -y
+RUN make --jobs=4 bindeb-pkg ARCH=x86_64 LOCALVERSION=augusto
